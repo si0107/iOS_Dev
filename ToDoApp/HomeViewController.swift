@@ -14,11 +14,17 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
     
     @IBOutlet weak var yearLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet var weatherIcon: UIImageView!
-    @IBOutlet var temperature: UILabel!
+    @IBOutlet weak var weatherIcon: UIImageView!
+    @IBOutlet weak var temperature: UILabel!
     //@IBOutlet weak var quote: UILabel!
     @IBOutlet var calendar: FSCalendar!
-    @IBOutlet var cityLabel: UILabel!
+    @IBOutlet weak var cityLabel: UILabel!
+    @IBOutlet weak var getButton: UIButton!
+    
+    // MARK: - Actions
+    @IBAction func getLocButton(){
+        getLocation()
+    }
     
     var formatter = DateFormatter()
     let locationManager = CLLocationManager()
@@ -51,7 +57,7 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         //self.quote.text = "Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. Hello my name is sarika islam. "
         
         getLocation()
-        //TODO: updateCity()
+        updateCity()
         
     }
     
@@ -79,9 +85,8 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
             return
         }
         
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.startUpdatingLocation()
+        startLocationManager()
+        updateCity()
     }
     
     // MARK: - CLLocationManagerDelegate
@@ -95,7 +100,7 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         }
         lastLocationError = error
         stopLocationManager()
-        //TODO: updateCity()
+        updateCity()
     }
     
     func locationManager(
@@ -104,9 +109,27 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
     ){
         let newLocation = locations.last!
         print("didUpdateLocations \(newLocation)")
-        location = newLocation    // Add this
-        //TODO: update city location here
-        //TODO: updateCity()
+        
+        //take too long - cached location
+        if newLocation.timestamp.timeIntervalSinceNow < -5 {
+            return
+        }
+        
+        // invalid location
+        if newLocation.horizontalAccuracy < 0 {
+              return
+        }
+        
+        //check if nil before force unwrapping
+        if location == nil || location!.horizontalAccuracy > newLocation.horizontalAccuracy {
+            lastLocationError = nil
+            location = newLocation
+            if newLocation.horizontalAccuracy <= locationManager.desiredAccuracy {
+                print("*** We're done!")
+                stopLocationManager()
+            }
+            updateCity()
+        }
     }
     
     // MARK: - Helper Methods
@@ -123,7 +146,45 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         present(alert, animated: true, completion: nil)
     }
     
-    //TODO: func updateCity(){cityLabel.text = newCity}
+    //563
+    func updateCity() {
+        if let location = location {
+            cityLabel.text = String(
+            format: "%.2f",
+            location.coordinate.latitude)
+        } else {
+              //cityLabel.text = "N/A"
+              let statusMessage: String
+              if let error = lastLocationError as NSError? {
+                  if error.domain == kCLErrorDomain && error.code == CLError.denied.rawValue{
+                      statusMessage = "Loc Service Disabled"
+                  } else {
+                      statusMessage = "Error 4 loc"
+                  }
+              } else if !CLLocationManager.locationServicesEnabled() {
+                    statusMessage = "Loc Serv Disabled"
+              } else if updatingLocation {
+                    statusMessage = "Searching..."
+              } else {
+                    statusMessage = "Retry"
+              }
+            cityLabel.textAlignment = NSTextAlignment.center
+            cityLabel.adjustsFontSizeToFitWidth = true
+            cityLabel.text = statusMessage
+            //cityLabel.text = "error"
+        }
+        
+    }
+    
+    func startLocationManager() {
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+            updatingLocation = true
+            //getButton.setImage(UIImage(systemName: String), for: .normal)
+        }
+    }
     
     func stopLocationManager() {
         if updatingLocation {
