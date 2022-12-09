@@ -2,7 +2,7 @@
 //  ChecklistItem+CoreDataClass.swift
 //  ToDoApp
 //
-//  Created by S I on 12/7/22.
+//  Created by S I on 12/9/22.
 //
 //
 

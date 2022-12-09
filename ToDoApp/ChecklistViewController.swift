@@ -40,18 +40,12 @@ class ChecklistViewController: UIViewController {
     struct TableView {
       struct CellIdentifiers {
           static let checklistItemCell = "ChecklistItemCell"
-          //static let nothingFoundCell = "NothingFoundCell"
-          //static let loadingCell = "LoadingCell"
       }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-        
-        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        
+        //tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         navigationItem.largeTitleDisplayMode = .never
         self.tableView.estimatedRowHeight = 80
         self.tableView.rowHeight = UITableView.automaticDimension

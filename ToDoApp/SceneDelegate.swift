@@ -30,7 +30,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             // Second tab
             navController = tabViewControllers[1] as! UINavigationController
-            let controller2 = navController.viewControllers.first as! ChecklistViewController
+            let controller2 = navController.viewControllers.first as! AllListsViewController
             controller2.managedObjectContext = managedObjectContext
             
             // Second Tab - Add/Edit Item

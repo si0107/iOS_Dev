@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21E258" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="Checklist" representedClassName="Checklist" syncable="YES" codeGenerationType="class">
+    <entity name="Checklist" representedClassName="Checklist" syncable="YES">
+        <attribute name="listIconName" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
-        <relationship name="listOfItems" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ChecklistItem" inverseName="checklist" inverseEntity="ChecklistItem"/>
+        <relationship name="listOfItems" toMany="YES" deletionRule="Nullify" destinationEntity="ChecklistItem" inverseName="allList" inverseEntity="ChecklistItem"/>
     </entity>
     <entity name="ChecklistItem" representedClassName="ChecklistItem" syncable="YES">
         <attribute name="category" attributeType="String"/>
         <attribute name="checked" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="itemDescription" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
-        <relationship name="checklist" maxCount="1" deletionRule="Nullify" destinationEntity="Checklist" inverseName="listOfItems" inverseEntity="Checklist"/>
+        <relationship name="allList" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Checklist" inverseName="listOfItems" inverseEntity="Checklist"/>
     </entity>
     <elements>
+        <element name="Checklist" positionX="-36" positionY="36" width="128" height="74"/>
         <element name="ChecklistItem" positionX="-54" positionY="-9" width="128" height="104"/>
-        <element name="Checklist" positionX="-36" positionY="36" width="128" height="59"/>
     </elements>
 </model>
