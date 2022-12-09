@@ -11,6 +11,7 @@ import UIKit
 
 import FSCalendar
 import CoreLocation
+import CoreData
 
 class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSource, CLLocationManagerDelegate {
     
@@ -23,6 +24,8 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var getButton: UIButton!
     @IBOutlet weak var authorLabel: UILabel!
+    
+    var managedObjectContext: NSManagedObjectContext!
     
     var formatter = DateFormatter()
     let locationManager = CLLocationManager()
@@ -78,7 +81,7 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         self.weatherIcon.image = UIImage(systemName: "square")
         self.quote.text = "Retrieving daily quote!"
         self.authorLabel.text = ""
-        self.getQuote()
+        //self.getQuote()
         
         //time interval in seconds
         //every 10 minutes, it will update the weather
@@ -91,9 +94,6 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         
         getLocation()
         updateCity()
-        
-        //TEST WEATHER API
-        //findWeather(lat: "40.712776", long: "-74.005974")
         
     }
     
@@ -267,11 +267,16 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
                 cityLabel.text = "Not Found"
             }
             
-            if currentTemperature != nil {
-                currentTemperature! += " °F"
-                temperature.text = currentTemperature
+            if currentTemperature != nil && !isLoading{
+                var cTemp = ""
+                cTemp.add(text: currentTemperature)
+                cTemp.add(text: "°F")
+                
+                temperature.text = cTemp
                 cityLabel.textAlignment = NSTextAlignment.center
                 cityLabel.adjustsFontSizeToFitWidth = true
+                temperature.textAlignment = NSTextAlignment.center
+                temperature.adjustsFontSizeToFitWidth = true
             } else if isLoading{
                 self.temperature.text = "..."
             } else {
@@ -361,16 +366,10 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
 //     }
     
     func string(from placemark: CLPlacemark) -> String {
-      var line = ""
-        //city
-      if let tmp = placemark.locality {
-        line = tmp // ", "
-      }
-        //state
-//      if let tmp = placemark.administrativeArea {
-//        line += tmp
-//      }
-      return line  //city
+        var line = ""
+        line.add(text: placemark.locality)
+        line.add(text: placemark.administrativeArea, separatedBy: ", \n")
+        return line
     }
     
     //@objc to make it accesible for objC so that the selector can identify it
