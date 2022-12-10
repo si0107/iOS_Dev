@@ -20,7 +20,6 @@ extension ChecklistItem {
     @NSManaged public var checked: Int64
     @NSManaged public var itemDescription: String
     @NSManaged public var title: String
-    @NSManaged public var allList: Checklist?
 
 }
 

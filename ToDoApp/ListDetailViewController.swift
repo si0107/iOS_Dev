@@ -98,9 +98,6 @@ class ListDetailViewController: UITableViewController, UITextFieldDelegate, Icon
       return indexPath.section == 1 ? indexPath : nil
     }
     
-   
-    
-    
 
     // MARK: - Table view data source
     //set var iconName to name of chosen icon

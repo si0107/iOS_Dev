@@ -8,7 +8,7 @@
 import UIKit
 import CoreData
 
-class ChecklistViewController: UIViewController {
+class ChecklistViewController: UIViewController, UINavigationControllerDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -172,6 +172,10 @@ extension ChecklistViewController: UITableViewDelegate, UITableViewDataSource {
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        UserDefaults.standard.set(
+            indexPath.row,
+            forKey: "ChecklistItemIndex")
+        
         if let cell = self.tableView.cellForRow(at: indexPath) as? ChecklistItemCell {
             let item = fetchedResultsController.object(at: indexPath) as! ChecklistItem
             //If item is event or not

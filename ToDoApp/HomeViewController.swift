@@ -5,8 +5,6 @@
 //  Created by S I on 11/9/22.
 //
 
-
-// TO-DO: 583 - change start location manager ()
 import UIKit
 
 import FSCalendar
@@ -81,14 +79,14 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         self.weatherIcon.image = UIImage(systemName: "square")
         self.quote.text = "Retrieving daily quote!"
         self.authorLabel.text = ""
-        //self.getQuote()
+        self.getQuote()
         
         //time interval in seconds
         //every 10 minutes, it will update the weather
         Timer.scheduledTimer(withTimeInterval: 600, repeats: true){ (_) in
             print("TIMER TICKING")
-            //getLocation()
-            //updateCity()
+            self.getLocation()
+            self.updateCity()
         }
         
         
@@ -216,7 +214,7 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
                     
                     print("LATITUDE: \(latit)")
                     print("LONGITUDE: \(longit)")
-                    //findWeather(lat: latit, long: longit)
+                    findWeather(lat: latit, long: longit)
                     print("***End of findWeather")
                 }
                 //isLoading = false
@@ -250,7 +248,6 @@ class HomeViewController: UIViewController, FSCalendarDelegate, FSCalendarDataSo
         present(alert, animated: true, completion: nil)
     }
     
-    //563
     func updateCity() {
         if location != nil {
             getButton.setImage(UIImage(systemName: "location.fill"), for: .normal)

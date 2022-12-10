@@ -7,38 +7,43 @@
 
 import UIKit
 import CoreData
+import AudioToolbox
 
-class AddItemViewController: UITableViewController, UITextFieldDelegate {
+class AddItemViewController: UITableViewController, UITextFieldDelegate, CategoryPickerViewControllerDelegate {
     
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet var descriptionTextField: UITextField!
-    @IBOutlet weak var segmentedControl: UISegmentedControl!
+    //@IBOutlet weak var segmentedControl: UISegmentedControl!
     @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet weak var categoryText: UILabel!
+    
+    var soundID: SystemSoundID = 0
 
     var managedObjectContext: NSManagedObjectContext!
-    
+    var titleText = ""
+    var categoryName = "Event"
+    var descriptionText = ""
+    //var segmentControlIndex = 0
     var itemToEdit: ChecklistItem? {
         didSet {
             if let item = itemToEdit {
                 titleText = item.title
                 descriptionText = item.itemDescription
-                if item.category == "Item" {
-                    segmentControlIndex = 0
-                } else {
-                    segmentControlIndex = 1
-                }
+//                if item.category == "Item" {
+//                    segmentControlIndex = 0
+//                } else {
+//                    segmentControlIndex = 1
+//                }
+                categoryName = item.category
             }
         }
     }
-    
-    var titleText = ""
-    var descriptionText = ""
-    var segmentControlIndex = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         doneBarButton.isEnabled = false
         navigationItem.largeTitleDisplayMode = .never
+        loadSoundEffect("Sound.caf")
         
         if let item = itemToEdit {
             title = "Edit Item"
@@ -46,7 +51,8 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
         }
         titleTextField.text = titleText
         descriptionTextField.text = descriptionText
-        segmentedControl.selectedSegmentIndex = segmentControlIndex
+        //selectedSegmentIndex = segmentControlIndex
+        categoryText.text = categoryName
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,6 +69,7 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
         guard let mainView = navigationController?.parent?.view
           else { return }
         let hudView = HudView.hud(inView: mainView, animated: true)
+        self.playSoundEffect()
         
         print("Contents of the text field: \(titleTextField.text!)")
         
@@ -78,11 +85,12 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
         item.title = titleTextField.text!
         item.itemDescription = descriptionTextField.text!
         item.checked = 0 //Always unchecked
-        if segmentedControl.selectedSegmentIndex == 0 {
-            item.category = "Item" //or event
-        } else {
-            item.category = "Event" //or event
-        }
+//        if segmentedControl.selectedSegmentIndex == 0 {
+//            item.category = "Item" //or event
+//        } else {
+//            item.category = "Event" //or event
+//        }
+        item.category = categoryText.text!
         
         do {
             try self.managedObjectContext.save()
@@ -98,9 +106,9 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
         }
     }
     
-    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
-        print("Segment changed: \(sender.selectedSegmentIndex)")
-    }
+//    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
+//        print("Segment changed: \(sender.selectedSegmentIndex)")
+//    }
 
     // MARK: - Table view data source
     
@@ -110,7 +118,8 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
       willSelectRowAt indexPath: IndexPath
     ) -> IndexPath? {
         //return nil so they can't select the rows
-        return nil
+        //select only the category cell
+        return indexPath.section == 2 ? indexPath : nil
     }
     
     
@@ -136,6 +145,40 @@ class AddItemViewController: UITableViewController, UITextFieldDelegate {
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         doneBarButton.isEnabled = false
         return true
+    }
+    
+    // MARK: - Table view data source
+    func categoryPicker(_ picker: CategoryPickerViewController, didPick categoryName: String) {
+        self.categoryName = categoryName
+        categoryText.text = self.categoryName
+        navigationController?.popViewController(animated: true)
+        self.tableView.reloadData()
+    }
+    
+    //MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?){
+        if segue.identifier == "PickCategory" {
+            let controller = segue.destination as! CategoryPickerViewController
+            controller.delegate = self
+      }
+    }
+    
+    // MARK: - Sound effects
+    func loadSoundEffect(_ name: String) {
+      if let path = Bundle.main.path(forResource: name, ofType: nil)
+    {
+        let fileURL = URL(fileURLWithPath: path, isDirectory: false)
+        let error = AudioServicesCreateSystemSoundID(fileURL as
+    CFURL, &soundID)
+        if error != kAudioServicesNoError {
+          print("Error code \(error) loading sound: \(path)")
+        }
+    } }
+    func unloadSoundEffect() {
+      AudioServicesDisposeSystemSoundID(soundID)
+    soundID = 0 }
+    func playSoundEffect() {
+      AudioServicesPlaySystemSound(soundID)
     }
     
 
